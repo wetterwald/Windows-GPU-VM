@@ -1,22 +1,22 @@
 ﻿$params = @{
-    VMName = "GPUPV"
-    SourcePath = "C:\Users\james\Downloads\Win11_English_x64.iso"
+    VMName = "Win11GPU"
+    SourcePath = "D:\ISO\Win11_French_x64v1.iso"
     Edition    = 6
     VhdFormat  = "VHDX"
     DiskLayout = "UEFI"
-    SizeBytes  = 40GB
-    MemoryAmount = 8GB
+    SizeBytes  = 60GB
+    MemoryAmount = 16GB
     CPUCores = 4
     NetworkSwitch = "Default Switch"
     VHDPath = "C:\Users\Public\Documents\Hyper-V\Virtual Hard Disks\"
     UnattendPath = "$PSScriptRoot"+"\autounattend.xml"
-    GPUName = "AUTO"
+    GPUName = "NVIDIA Quadro T2000 with Max-Q Design"
     GPUResourceAllocationPercentage = 50
     Team_ID = ""
     Key = ""
-    Username = "GPUVM"
-    Password = "CoolestPassword!"
-    Autologon = "true"
+    Username = "Admin"
+    Password = "Avenao10"
+    Autologon = "false"
 }
 
 Import-Module $PSSCriptRoot\Add-VMGpuPartitionAdapterFiles.psm1
@@ -139,42 +139,6 @@ If ($ExitReason.Count -gt 0) {
     }
 }
 
-Function Setup-ParsecInstall {
-param(
-[string]$DriveLetter,
-[string]$Team_ID,
-[string]$Key
-)
-    $new = @()
-
-    $content = get-content "$PSScriptRoot\user\psscripts.ini" 
-
-    foreach ($line in $content) {
-        if ($line -like "0Parameters="){
-            $line = "0Parameters=-team_id=$Team_ID -team_key=$Key"
-            $new += $line
-            }
-        Else {
-            $new += $line
-            }
-    }
-    Set-Content -Value $new -Path "$PSScriptRoot\user\psscripts.ini"
-    if((Test-Path -Path $DriveLetter\Windows\system32\GroupPolicy\User\Scripts\Logon) -eq $true) {} Else {New-Item -Path $DriveLetter\Windows\system32\GroupPolicy\User\Scripts\Logon -ItemType directory | Out-Null}
-    if((Test-Path -Path $DriveLetter\Windows\system32\GroupPolicy\User\Scripts\Logoff) -eq $true) {} Else {New-Item -Path $DriveLetter\Windows\system32\GroupPolicy\User\Scripts\Logoff -ItemType directory | Out-Null}
-    if((Test-Path -Path $DriveLetter\Windows\system32\GroupPolicy\Machine\Scripts\Startup) -eq $true) {} Else {New-Item -Path $DriveLetter\Windows\system32\GroupPolicy\Machine\Scripts\Startup -ItemType directory | Out-Null}
-    if((Test-Path -Path $DriveLetter\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown) -eq $true) {} Else {New-Item -Path $DriveLetter\Windows\system32\GroupPolicy\Machine\Scripts\Shutdown -ItemType directory | Out-Null}
-    if((Test-Path -Path $DriveLetter\ProgramData\Easy-GPU-P) -eq $true) {} Else {New-Item -Path $DriveLetter\ProgramData\Easy-GPU-P -ItemType directory | Out-Null}
-    Copy-Item -Path $psscriptroot\VMScripts\VDDMonitor.ps1 -Destination $DriveLetter\ProgramData\Easy-GPU-P
-    Copy-Item -Path $psscriptroot\VMScripts\VBCableInstall.ps1 -Destination $DriveLetter\ProgramData\Easy-GPU-P
-    Copy-Item -Path $psscriptroot\VMScripts\ParsecVDDInstall.ps1 -Destination $DriveLetter\ProgramData\Easy-GPU-P
-    Copy-Item -Path $psscriptroot\VMScripts\ParsecPublic.cer -Destination $DriveLetter\ProgramData\Easy-GPU-P
-    Copy-Item -Path $psscriptroot\VMScripts\Parsec.lnk -Destination $DriveLetter\ProgramData\Easy-GPU-P
-    Copy-Item -Path $psscriptroot\gpt.ini -Destination $DriveLetter\Windows\system32\GroupPolicy
-    Copy-Item -Path $psscriptroot\User\psscripts.ini -Destination $DriveLetter\Windows\system32\GroupPolicy\User\Scripts
-    Copy-Item -Path $psscriptroot\User\Install.ps1 -Destination $DriveLetter\Windows\system32\GroupPolicy\User\Scripts\Logon
-    Copy-Item -Path $psscriptroot\Machine\psscripts.ini -Destination $DriveLetter\Windows\system32\GroupPolicy\Machine\Scripts
-    Copy-Item -Path $psscriptroot\Machine\Install.ps1 -Destination $DriveLetter\Windows\system32\GroupPolicy\Machine\Scripts\Startup
-}
 
 function Convert-WindowsImage {
     <#
@@ -2489,8 +2453,8 @@ You can use the fields below to configure the VHD or VHDX that you want to creat
             Add-VMGpuPartitionAdapterFiles -GPUName $GPUName -DriveLetter $windowsDrive
             }
 
-            Write-W2VInfo "Setting up Parsec to install at boot"
-            Setup-ParsecInstall -DriveLetter $WindowsDrive -Team_ID $team_id -Key $key
+            #Write-W2VInfo "Setting up Parsec to install at boot"
+            #Setup-ParsecInstall -DriveLetter $WindowsDrive -Team_ID $team_id -Key $key
 
             if ($DiskLayout -eq "UEFI")
             {
