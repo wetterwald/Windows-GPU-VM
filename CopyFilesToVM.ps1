@@ -15,7 +15,7 @@
     Team_ID = ""
     Key = ""
     Username = "Admin"
-    Password = "Avenao10"
+    Password = "SuperPassword!"
     Autologon = "false"
 }
 
